@@ -23,8 +23,8 @@ jobs:
 
       - name: Set envs
         run: |
-          echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT=${{ github.event.client_payload.environment }}" >> $GITHUB_ENV
+          echo "VERSION=v0.0.15" >> $GITHUB_ENV
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
       - name: Set up Helm
         uses: azure/setup-helm@v3
