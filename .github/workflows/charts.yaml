@@ -4,10 +4,6 @@ on:
   repository_dispatch:
     types: [charts-deployment-trigger]
 
-permissions:
-  id-token: write
-  contents: read
-
 env:
   REGISTRY: "ghcr.io/dolvladzio"
   ORG: "dolvladzio"
@@ -17,6 +13,9 @@ jobs:
   lint-plan-charts:
     name: Lint Helm Charts
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -63,7 +62,9 @@ jobs:
             --admin \
             --overwrite-existing
 
-          kubectl get node
+      - name: Verify kubectl connection
+        run: |
+          kubectl get nodes
 
       - name: Helm diff check
         run: |
