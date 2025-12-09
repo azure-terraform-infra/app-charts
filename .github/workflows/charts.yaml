@@ -76,8 +76,10 @@ jobs:
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
                   -f charts/$i/values.yaml
+
+                echo "✅ Diff check completed for $i"
               else
-                echo "Release $i does not exist yet, will be created"
+                echo "❌ Release $i does not exist yet, will be created"
               fi
             done
 
