@@ -41,7 +41,8 @@ jobs:
 
       - name: Helm diff plugin
         run: |
-            helm plugin install https://github.com/databus23/helm-diff
+            helm plugin install https://github.com/databus23/helm-diff --version v3.9.4
+            helm diff version
 
       - name: Helm diff check
         run: |
