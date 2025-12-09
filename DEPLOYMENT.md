@@ -53,62 +53,6 @@ helm upgrade app-1 ./charts/app-1 \
   -n production
 ```
 
-## Configuration
-
-### Key Configuration Options
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `replicaCount` | Number of replicas | `2` |
-| `image.repository` | Container image repository | `ghcr.io/dolvladzio/app-*` |
-| `image.tag` | Container image tag | `latest` |
-| `service.port` | Service port | `80` |
-| `service.targetPort` | Container port | `5000` |
-| `ingress.enabled` | Enable ingress | `true` |
-| `ingress.className` | Ingress class | `nginx` |
-| `ingress.hosts[0].host` | Hostname | `app-*.example.com` |
-| `resources.requests.cpu` | CPU request | `250m` |
-| `resources.requests.memory` | Memory request | `256Mi` |
-| `resources.limits.cpu` | CPU limit | `500m` |
-| `resources.limits.memory` | Memory limit | `512Mi` |
-| `autoscaling.enabled` | Enable HPA | `false` |
-
-### Example values.yaml override
-
-```yaml
-# custom-values.yaml
-replicaCount: 3
-
-image:
-  tag: "v1.2.3"
-
-ingress:
-  hosts:
-    - host: app-1.mycompany.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: app-1-tls
-      hosts:
-        - app-1.mycompany.com
-
-autoscaling:
-  enabled: true
-  minReplicas: 3
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 70
-
-env:
-  - name: FLASK_ENV
-    value: "production"
-  - name: DATABASE_URL
-    valueFrom:
-      secretKeyRef:
-        name: app-secrets
-        key: database-url
-```
-
 Deploy with custom values:
 ```bash
 helm install app-1 ./charts/app-1 -f custom-values.yaml -n production
@@ -141,41 +85,6 @@ Each application includes:
 - **Liveness probe**: `/health` endpoint (checks if app is running)
 - **Readiness probe**: `/ready` endpoint (checks if app can serve traffic)
 
-Ensure your Flask application implements these endpoints:
-
-```python
-@app.route('/health')
-def health():
-    return {'status': 'healthy'}, 200
-
-@app.route('/ready')
-def ready():
-    # Check database connection, etc.
-    return {'status': 'ready'}, 200
-```
-
-## Security
-
-The charts include security best practices:
-- Non-root user execution
-- Read-only root filesystem option
-- Dropped capabilities
-- Resource limits
-- Network policies ready
-
-## Monitoring
-
-To enable metrics collection, add Prometheus annotations:
-
-```yaml
-podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "5000"
-  prometheus.io/path: "/metrics"
-```
-
-## Troubleshooting
-
 ### Check pod status
 ```bash
 kubectl get pods -n production -l app.kubernetes.io/name=app-1
@@ -204,11 +113,3 @@ helm template app-1 ./charts/app-1
 # Lint chart
 helm lint ./charts/app-1
 ```
-
-## CI/CD Integration
-
-The charts are designed to work with GitHub Actions. See `.github/workflows/charts.yaml` for automated chart releases.
-
-## License
-
-MIT

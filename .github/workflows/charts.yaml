@@ -1,0 +1,90 @@
+name: Charts CI/CD Pipeline
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [charts-deployment-trigger]
+
+env:
+  REGISTRY: "ghcr.io/dolvladzio"
+  ORG: "dolvladzio"
+  REPOS: "app-1 app-2 app-3"
+
+jobs:
+  lint-plan-charts:
+    name: Lint Helm Charts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set envs
+        run: |
+          echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ github.event.client_payload.environment }}" >> $GITHUB_ENV
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+      
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+            version: 'latest'
+          
+      - name: Lint Helm charts
+        run: |
+          for chart in charts/*; do
+            helm lint "$chart"
+          done
+
+      - name: Helm diff plugin
+        run: |
+            helm plugin install https://github.com/databus23/helm-diff
+
+      - name: Helm diff check
+        run: |
+            for i in ${{ env.REPOS}}; do
+              echo "Checking helm diff for $i"
+
+              if helm diff upgrade $i ./charts/$i \
+                -n ${{ env.ENVIRONMENT }} \
+                --set image.tag=${{ env.VERSION }} \
+                -f charts/$i/values.yaml; then
+                echo "✅ No changes detected for $i"
+              else
+                echo "❌ Changes detected for $i, aborting deployment"
+                exit 1
+              fi
+            done
+
+      - name: Check status
+        run: |
+          for i in ${{ env.REPOS }}; do
+            echo "Checking helm status for $i..."
+
+            if helm status $i -n ${{ env.ENVIRONMENT }}; then
+              echo "✅ $i is deployed"
+            else
+              echo "❌ $i is not deployed, aborting deployment"
+              exit 1
+            fi
+          done
+
+      - name: Deploy the ${{ env.VERSION }} version
+        run: |
+            for i in ${{ env.REPOS}}; do
+              echo "Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
+
+                if helm upgrade --install $i ./charts/$i \
+                  -n ${{ env.ENVIRONMENT }} \
+                  --set image.tag=${{ env.VERSION }} \
+                  -f charts/$i/values.yaml \
+                  --wait --timeout 10m; then
+                  echo "✅ Deployed $i successfully"
+                else
+                  echo "❌ Deployment of $i failed"
+                  exit 1
+                fi
+            done
