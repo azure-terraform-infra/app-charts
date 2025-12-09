@@ -1,0 +1,11 @@
+apiVersion: v2
+name: app-1
+description: A Helm chart for Flask application app-1
+type: application
+version: 0.1.0
+keywords:
+- flask
+- python
+- web
+maintainers:
+- name: DevOps Team
