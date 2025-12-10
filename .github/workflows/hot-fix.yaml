@@ -89,7 +89,7 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ github.token }}
-          approvers: yuriihospodaryshyn-commits
+          approvers: yuriihospodaryshyn
           minimum-approvals: 1
           issue-title: "Manual Approval Required for Helm Chart Deployment"
           issue-body: "Review the Hot Fix Helm diff, then approve or deny the deployment in ${{ env.ENVIRONMENT }}."
