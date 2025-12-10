@@ -46,11 +46,20 @@ helm install app-1 ./charts/app-1 \
 ```
 
 ### Upgrade an application
-
 ```bash
-helm upgrade app-1 ./charts/app-1 \
-  --set image.tag=v1.1.0 \
-  -n production
+helm upgrade --install app-1 ./charts/app-1 \
+  -n dev \
+  --set image.tag=... \
+  --set image.repository=.../app-1 \
+  -f charts/app-1/values.yaml \
+  --wait --timeout 10m
+
+helm upgrade --install app-1 ./charts/app-1 \
+  -n prod \
+  --set image.tag=... \
+  --set image.repository=.../app-1 \
+  -f charts/app-1/values.yaml \
+  --wait --timeout 10m
 ```
 
 Deploy with custom values:

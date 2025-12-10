@@ -7,6 +7,10 @@ on:
 env:
   REPOS: "app-1 app-2 app-3"
   AZURE_RESOURCE_GROUP: "terraform-infra"
+  VERSION: ${{ github.event.client_payload.version }}
+  ENVIRONMENT: ${{ github.event.client_payload.environment }}
+  REGISTRY: ${{ github.event.client_payload.environment }}containerregistry5th7aytwop.azurecr.io
+  AZURE_AKS_CLUSTER: ${{ github.event.client_payload.environment }}-aks-cluster
 
 jobs:
   lint-plan-charts:
@@ -19,13 +23,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set envs
-        run: |
-          echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT=${{ github.event.client_payload.environment }}" >> $GITHUB_ENV
-          echo "REGISTRY=${{ github.event.client_payload.environment }}containerregistry5th7aytwop.azurecr.io" >> $GITHUB_ENV
-          echo "AZURE_AKS_CLUSTER=${{ github.event.client_payload.environment }}-aks-cluster" >> $GITHUB_ENV
 
       - name: Set up Helm
         uses: azure/setup-helm@v3
@@ -84,6 +81,67 @@ jobs:
                 echo "❌ Release $i does not exist yet, will be created"
               fi
             done
+
+  manual-approval:
+    name: manual approval
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    needs: lint-plan-charts
+    steps: 
+      - name: Await for manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.token }}
+          approvers: yuriihospodaryshyn-commits
+          minimum-approvals: 1
+          issue-title: "Manual Approval Required for Helm Chart Deployment"
+          issue-body: "Review the Helm diff, then approve or deny the deployment in ${{ env.ENVIRONMENT }}."
+          exclude-workflow-initiator-as-approver: false
+
+  deploy-charts:
+    name: Deploy Helm Charts
+    needs: manual-approval
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+      
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+            version: 'latest'
+
+      - name: Install helm diff plugin
+        run: |
+            helm plugin install https://github.com/databus23/helm-diff --version v3.9.4
+            helm diff version
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set kubeconfig
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_AKS_CLUSTER }} \
+            --admin \
+            --overwrite-existing
+
+      - name: Verify kubectl connection
+        run: |
+          kubectl get nodes
 
       - name: Deploy the ${{ env.VERSION }} version
         run: |
