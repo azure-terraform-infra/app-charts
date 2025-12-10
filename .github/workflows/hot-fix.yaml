@@ -93,7 +93,7 @@ jobs:
           minimum-approvals: 1
           issue-title: "Manual Approval Required for Helm Chart Deployment"
           issue-body: "Review the Hot Fix Helm diff, then approve or deny the deployment in ${{ env.ENVIRONMENT }}."
-          exclude-workflow-initiator-as-approver: false
+          exclude-workflow-initiator-as-approver: true
 
   hot-fix-deploy:
     name: Deploy Hot Fix Chart
