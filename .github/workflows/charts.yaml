@@ -86,7 +86,7 @@ jobs:
                 helm diff upgrade $i ./charts/$i \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
-                  --set image.repository=${{ env.REGISTRY }} \
+                  --set image.repository=${{ env.REGISTRY }}/app-$i \
                   -f charts/$i/values.yaml
 
                 echo "✅ Diff check completed for $i"
@@ -103,7 +103,7 @@ jobs:
                 if helm upgrade --install $i ./charts/$i \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
-                  --set image.repository=${{ env.REGISTRY }} \
+                  --set image.repository=${{ env.REGISTRY }}/app-$i \
                   -f charts/$i/values.yaml \
                   --wait --timeout 10m; then
                   echo "✅ Deployed $i successfully"
