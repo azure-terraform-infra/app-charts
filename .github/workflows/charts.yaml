@@ -97,7 +97,7 @@ jobs:
 
       - name: Deploy the ${{ env.VERSION }} version
         run: |
-            for i in ${{ env.REPOS}}; do
+            for i in ${{ env.REPOS }}; do
               echo "Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
 
                 if helm upgrade --install $i ./charts/$i \
