@@ -34,8 +34,8 @@ jobs:
         run: |
           echo "VERSION=${{ github.event.client_payload.version || inputs.version }}" >> $GITHUB_ENV
           echo "ENVIRONMENT=${{ github.event.client_payload.environment || inputs.environment }}" >> $GITHUB_ENV
-          echo "REGISTRY=${{ env.ENVIRONMENT }}containerregistry5th7aytwop.azurecr.io" >> $GITHUB_ENV
-          echo "AZURE_AKS_CLUSTER=${{ env.ENVIRONMENT }}-aks-cluster" >> $GITHUB_ENV
+          echo "REGISTRY=${{ github.event.client_payload.environment || inputs.environment }}containerregistry5th7aytwop.azurecr.io" >> $GITHUB_ENV
+          echo "AZURE_AKS_CLUSTER=${{ github.event.client_payload.environment || inputs.environment }}-aks-cluster" >> $GITHUB_ENV
 
       - name: Set up Helm
         uses: azure/setup-helm@v3
