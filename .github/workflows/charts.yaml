@@ -15,7 +15,6 @@ on:
         type: string
 
 env:
-  REGISTRY: "containerregistry5th7aytwop.azurecr.io" # without environment prefix in order to support both dev/prod
   REPOS: "app-1 app-2 app-3"
   AZURE_RESOURCE_GROUP: "terraform-infra"
   AZURE_AKS_CLUSTER: "aks-cluster"
