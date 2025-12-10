@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/dolvladzio/app-1
+  repository: ""
   pullPolicy: IfNotPresent
   tag: ""
 
