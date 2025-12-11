@@ -13,7 +13,7 @@ env:
 
 jobs:
   dev-chart:
-    name: Plan Dev Chart
+    name: Dev Chart
     runs-on: ubuntu-latest
     permissions:
       id-token: write
