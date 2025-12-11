@@ -63,7 +63,7 @@ jobs:
       - name: Helm diff check
         run: |
             mkdir -p helm-diffs
-            echo "# Helm Deployment Changes for ${{ env.ENVIRONMENT }}" > helm-diffs/summary.md
+            echo "# Hot Fix Helm Deployment Changes for ${{ env.ENVIRONMENT }}" > helm-diffs/summary.md
             echo "" >> helm-diffs/summary.md
             echo "**Version:** ${{ env.VERSION }}" >> helm-diffs/summary.md
             echo "**Environment:** ${{ env.ENVIRONMENT }}" >> helm-diffs/summary.md
@@ -72,40 +72,38 @@ jobs:
             echo "---" >> helm-diffs/summary.md
             echo "" >> helm-diffs/summary.md
 
-            for i in ${{ env.REPOS }}; do
-              echo "⏳Checking helm diff for $i"
-              
-              echo "## Chart: $i" >> helm-diffs/summary.md
-              echo "" >> helm-diffs/summary.md
+            echo "⏳Checking helm diff for ${{ env.APP_NAME }}..."
 
-              # Check if release exists
-              if helm status $i -n ${{ env.ENVIRONMENT }} &> /dev/null; then
-                echo "Release $i exists, checking diff..."
-                echo "**Status:** Upgrade existing release" >> helm-diffs/summary.md
-                echo "" >> helm-diffs/summary.md
-                echo "\`\`\`diff" >> helm-diffs/summary.md
-                
-                helm diff upgrade $i ./charts/$i \
-                  -n ${{ env.ENVIRONMENT }} \
-                  --set image.tag=${{ env.VERSION }} \
-                  --set image.repository=${{ env.REGISTRY }}/$i \
-                  -f charts/$i/values.yaml | tee -a helm-diffs/summary.md
-                
-                echo "\`\`\`" >> helm-diffs/summary.md
-                echo "✅ Diff check completed for $i"
-              else
-                echo "**Status:** New installation (release does not exist yet)" >> helm-diffs/summary.md
-                echo "" >> helm-diffs/summary.md
-                echo "\`\`\`" >> helm-diffs/summary.md
-                echo "This is a new installation - all resources will be created." >> helm-diffs/summary.md
-                echo "\`\`\`" >> helm-diffs/summary.md
-                echo "❌ Release $i does not exist yet, will be created"
-              fi
+            echo "## Chart: ${{ env.APP_NAME }}" >> helm-diffs/summary.md
+            echo "" >> helm-diffs/summary.md
+
+            # Check if release exists
+            if helm status ${{ env.APP_NAME }} -n ${{ env.ENVIRONMENT }} &> /dev/null; then
+              echo "Release ${{ env.APP_NAME }} exists, checking diff..."
+              echo "**Status:** Upgrade existing release" >> helm-diffs/summary.md
+              echo "" >> helm-diffs/summary.md
+              echo "\`\`\`diff" >> helm-diffs/summary.md
               
+              helm diff upgrade ${{ env.APP_NAME }} ./charts/${{ env.APP_NAME }} \
+                -n ${{ env.ENVIRONMENT }} \
+                --set image.tag=${{ env.VERSION }} \
+                --set image.repository=${{ env.REGISTRY }}/${{ env.APP_NAME }} \
+                -f charts/${{ env.APP_NAME }}/values.yaml | tee -a helm-diffs/summary.md
+              
+              echo "\`\`\`" >> helm-diffs/summary.md
+              echo "✅ Diff check completed for ${{ env.APP_NAME }}"
+            else
+              echo "**Status:** New installation (release does not exist yet)" >> helm-diffs/summary.md
               echo "" >> helm-diffs/summary.md
-              echo "---" >> helm-diffs/summary.md
-              echo "" >> helm-diffs/summary.md
-            done
+              echo "\`\`\`" >> helm-diffs/summary.md
+              echo "This is a new installation - all resources will be created." >> helm-diffs/summary.md
+              echo "\`\`\`" >> helm-diffs/summary.md
+              echo "❌ Release ${{ env.APP_NAME }} does not exist yet, will be created"
+            fi
+            
+            echo "" >> helm-diffs/summary.md
+            echo "---" >> helm-diffs/summary.md
+            echo "" >> helm-diffs/summary.md
 
       - name: Upload helm diff artifact
         uses: actions/upload-artifact@v4
