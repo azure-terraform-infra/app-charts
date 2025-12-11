@@ -4,7 +4,7 @@ on:
     types: [hot-fix-deployment-trigger]
 
 env:
-  AZURE_RESOURCE_GROUP: "terraform-infra"
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
   VERSION: ${{ github.event.client_payload.version }}
   ENVIRONMENT: ${{ github.event.client_payload.environment }}
   REGISTRY: ${{ github.event.client_payload.environment }}containerregistry5th7aytwop.azurecr.io

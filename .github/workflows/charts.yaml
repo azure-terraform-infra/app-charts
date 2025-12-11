@@ -6,7 +6,7 @@ on:
 
 env:
   REPOS: "app-1 app-2 app-3"
-  AZURE_RESOURCE_GROUP: "terraform-infra"
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
   VERSION: ${{ github.event.client_payload.version }}
   ENVIRONMENT: ${{ github.event.client_payload.environment }}
   REGISTRY: ${{ github.event.client_payload.environment }}containerregistry5th7aytwop.azurecr.io
@@ -65,7 +65,7 @@ jobs:
       - name: Helm diff check
         run: |
             for i in ${{ env.REPOS }}; do
-              echo "Checking helm diff for $i"
+              echo "⏳Checking helm diff for $i"
 
               # Check if release exists
               if helm status $i -n ${{ env.ENVIRONMENT }} &> /dev/null; then
@@ -94,7 +94,7 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ github.token }}
-          approvers: yuriihospodaryshyn-commits
+          approvers: yuriihospodaryshyn
           minimum-approvals: 1
           issue-title: "Manual Approval Required for Helm Chart Deployment"
           issue-body: "Review the Helm diff, then approve or deny the deployment in ${{ env.ENVIRONMENT }}."
@@ -146,7 +146,7 @@ jobs:
       - name: Deploy the ${{ env.VERSION }} version
         run: |
             for i in ${{ env.REPOS }}; do
-              echo "Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
+              echo "🔃Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
 
                 if helm upgrade --install $i ./charts/$i \
                   -n ${{ env.ENVIRONMENT }} \
@@ -164,7 +164,7 @@ jobs:
       - name: Check status
         run: |
           for i in ${{ env.REPOS }}; do
-            echo "Checking helm status for $i..."
+            echo "⏳Checking helm status for $i..."
 
             if helm status $i -n ${{ env.ENVIRONMENT }}; then
               echo "✅ $i is deployed"
