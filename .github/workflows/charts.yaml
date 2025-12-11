@@ -143,7 +143,7 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.PAT }}
-          approvers: "yuriihospodaryshyn"
+          approvers: "yuriihospodaryshyn-commits"
           minimum-approvals: 1
           issue-title: "Manual Approval Required for Helm Chart Deployment - ${{ env.ENVIRONMENT }} - ${{ env.VERSION }}"
           issue-body-file-path: issue-body.md
