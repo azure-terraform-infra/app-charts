@@ -62,20 +62,57 @@ jobs:
 
       - name: Helm diff check
         run: |
-            echo "Checking helm diff for "
+            mkdir -p helm-diffs
+            echo "# Helm Deployment Changes for ${{ env.ENVIRONMENT }}" > helm-diffs/summary.md
+            echo "" >> helm-diffs/summary.md
+            echo "**Version:** ${{ env.VERSION }}" >> helm-diffs/summary.md
+            echo "**Environment:** ${{ env.ENVIRONMENT }}" >> helm-diffs/summary.md
+            echo "**Registry:** ${{ env.REGISTRY }}" >> helm-diffs/summary.md
+            echo "" >> helm-diffs/summary.md
+            echo "---" >> helm-diffs/summary.md
+            echo "" >> helm-diffs/summary.md
 
-              if helm status ${{ env.APP_NAME }} -n ${{ env.ENVIRONMENT }} &> /dev/null; then
-                echo "Release ${{ env.APP_NAME }} exists, checking diff..."
-                helm diff upgrade ${{ env.APP_NAME }} ./charts/${{ env.APP_NAME }} \
+            for i in ${{ env.REPOS }}; do
+              echo "⏳Checking helm diff for $i"
+              
+              echo "## Chart: $i" >> helm-diffs/summary.md
+              echo "" >> helm-diffs/summary.md
+
+              # Check if release exists
+              if helm status $i -n ${{ env.ENVIRONMENT }} &> /dev/null; then
+                echo "Release $i exists, checking diff..."
+                echo "**Status:** Upgrade existing release" >> helm-diffs/summary.md
+                echo "" >> helm-diffs/summary.md
+                echo "\`\`\`diff" >> helm-diffs/summary.md
+                
+                helm diff upgrade $i ./charts/$i \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
-                  --set image.repository=${{ env.REGISTRY }}/${{ env.APP_NAME }} \
-                  -f charts/${{ env.APP_NAME }}/values.yaml
-
-                echo "✅ Diff check completed for ${{ env.APP_NAME }}"
+                  --set image.repository=${{ env.REGISTRY }}/$i \
+                  -f charts/$i/values.yaml | tee -a helm-diffs/summary.md
+                
+                echo "\`\`\`" >> helm-diffs/summary.md
+                echo "✅ Diff check completed for $i"
               else
-                echo "❌ Release ${{ env.APP_NAME }} does not exist yet, will be created"
+                echo "**Status:** New installation (release does not exist yet)" >> helm-diffs/summary.md
+                echo "" >> helm-diffs/summary.md
+                echo "\`\`\`" >> helm-diffs/summary.md
+                echo "This is a new installation - all resources will be created." >> helm-diffs/summary.md
+                echo "\`\`\`" >> helm-diffs/summary.md
+                echo "❌ Release $i does not exist yet, will be created"
               fi
+              
+              echo "" >> helm-diffs/summary.md
+              echo "---" >> helm-diffs/summary.md
+              echo "" >> helm-diffs/summary.md
+            done
+
+      - name: Upload helm diff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-diff-${{ env.ENVIRONMENT }}-${{ env.VERSION }}
+          path: helm-diffs/
+          retention-days: 30
 
   manual-approval:
     name: manual approval
@@ -84,16 +121,31 @@ jobs:
       contents: write
       issues: write
     needs: hot-fix-plan
-    steps: 
+    steps:
+      - name: Download helm diff artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: helm-diff-${{ env.ENVIRONMENT }}-${{ env.VERSION }}
+          path: helm-diffs/
+      
+      - name: Save diff to file for issue
+        run: |
+          cat > issue-body.md << 'ISSUE_EOF'
+          > [!NOTE]
+          > Review the Hot Fix Helm diff below, then approve or deny the deployment in **${{ env.ENVIRONMENT }}**.
+          
+          ISSUE_EOF
+          cat helm-diffs/summary.md >> issue-body.md
+ 
       - name: Await for manual approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ github.token }}
-          approvers: yuriihospodaryshyn
+          secret: ${{ secrets.PAT }}
+          approvers: "yhospodaryshyn"
           minimum-approvals: 1
-          issue-title: "Manual Approval Required for Helm Chart Deployment"
-          issue-body: "Review the Hot Fix Helm diff, then approve or deny the deployment in ${{ env.ENVIRONMENT }}."
-          exclude-workflow-initiator-as-approver: true
+          issue-title: "Manual Approval Required for Hot Fix Helm Chart Deployment - ${{ env.ENVIRONMENT }} - ${{ env.VERSION }}"
+          issue-body-file-path: issue-body.md
+          exclude-workflow-initiator-as-approver: false
 
   hot-fix-deploy:
     name: Deploy Hot Fix Chart
