@@ -12,7 +12,7 @@ env:
   AZURE_AKS_CLUSTER: ${{ github.event.client_payload.environment }}-aks-cluster
 
 jobs:
-  dev-chart-plan:
+  dev-chart:
     name: Plan Dev Chart
     runs-on: ubuntu-latest
     permissions:
