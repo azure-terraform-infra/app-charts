@@ -169,11 +169,6 @@ jobs:
         with:
             version: 'latest'
 
-      - name: Install helm diff plugin
-        run: |
-            helm plugin install https://github.com/databus23/helm-diff --version v3.9.4
-            helm diff version
-
       - name: Azure login
         uses: azure/login@v2
         with:
