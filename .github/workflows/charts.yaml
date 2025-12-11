@@ -5,8 +5,8 @@ on:
     types: [charts-deployment-trigger]
 
 env:
-  REPOS: "app-1 app-2 app-3"
-  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+  REPOS: ${{ vars.REPOS }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
   VERSION: ${{ github.event.client_payload.version }}
   ENVIRONMENT: ${{ github.event.client_payload.environment }}
   REGISTRY: ${{ github.event.client_payload.environment }}containerregistry5th7aytwop.azurecr.io
