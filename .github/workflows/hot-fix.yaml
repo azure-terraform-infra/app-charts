@@ -34,7 +34,7 @@ jobs:
           
       - name: Lint Helm charts
         run: |
-          for chart in newChart/${{ env.APP_NAME }}; do
+          for chart in newChart/; do
             helm lint "$chart"
           done
 
