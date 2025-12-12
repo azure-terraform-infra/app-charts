@@ -1,7 +1,7 @@
-name: Stage Chart Deployment
+name: Stage/Dev Chart Deployment
 on:
   repository_dispatch:
-    types: [stage-deployment-trigger]
+    types: [stage-dev-deployment-trigger]
 
 env:
   VERSION: ${{ github.event.client_payload.version }}
@@ -12,8 +12,8 @@ env:
   AZURE_AKS_CLUSTER: ${{ github.event.client_payload.environment }}-aks-cluster
 
 jobs:
-  deploy-dev-chart:
-    name: Deploy Dev Chart
+  deploy-chart:
+    name: Deploy Chart
     runs-on: ubuntu-latest
     permissions:
       id-token: write
