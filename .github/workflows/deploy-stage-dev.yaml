@@ -1,7 +1,7 @@
 name: Stage/Dev Chart Deployment
 on:
   repository_dispatch:
-    types: [stage-dev-deployment-trigger]
+    types: [dev-stage-deployment-trigger]
 
 env:
   VERSION: ${{ github.event.client_payload.version }}
