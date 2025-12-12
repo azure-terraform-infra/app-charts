@@ -4,7 +4,7 @@ metadata:
   name: wildcard-gateway
   namespace: dev
   annotations:
-    alb.networking.azure.io/alb-name: alb-test
+    alb.networking.azure.io/alb-name: dev-alb
     alb.networking.azure.io/alb-namespace: dev
 spec:
   gatewayClassName: azure-alb-external

@@ -9,4 +9,4 @@ spec:
     name: letsencrypt-prod-dns # Only DNS-01 supports wildcard certificates
     kind: ClusterIssuer
   dnsNames:
-  - "wildcard.infratestapp.pp.ua" # Wildcard for all subdomains
+  - "*.infratestapp.pp.ua" # Wildcard for all subdomains
