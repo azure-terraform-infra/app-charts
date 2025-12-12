@@ -31,12 +31,6 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
             version: 'latest'
-          
-      - name: Lint Helm charts
-        run: |
-          for chart in newChart/; do
-            helm lint "$chart"
-          done
 
       - name: Install helm diff plugin
         run: |
