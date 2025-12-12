@@ -1,0 +1,114 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+service: []
+
+ingress:
+  enabled: false
+
+resources: []
+
+autoscaling: []
+
+livenessProbe: []
+
+readinessProbe: []
+
+env: []
+
+envFrom: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+applicationLoadBalancer:
+  enabled: true
+  dev:
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/dev-net/subnets/public"
+  prod:
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/prod-net/subnets/public"
+  stage:
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/stage-net/subnets/public"
+
+wildcardCertificate:
+  enabled: true
+  name: wildcard-tls
+  secretName: "wildcard-tls-secret"
+  dnsNames:
+    - "*.infratestapp.pp.ua"
+
+gatewayClass:
+  enabled: true
+  gatewayClassName: azure-alb-external
+  listeners:
+    - name: http-listener
+      protocol: HTTP
+      port: 80
+      allowedNamespacesFrom: Same
+    - name: https-listener
+      protocol: HTTPS
+      port: 443
+      allowedNamespacesFrom: Same
+      tls:
+        terminate: true
+        certificateSecretName: wildcard-tls-secret
+
+gatewayNetworking:
+  enabled: true
+  httpsRoute:
+    name: wildcard-https-route
+    hostnames:
+      dev:
+        - "dev.infratestapp.pp.ua"
+      stage:
+        - "stage.infratestapp.pp.ua"
+      prod:
+        - "wildcard.infratestapp.pp.ua"
+    rules:
+      - pathPrefix: "/"
+        backends:
+          - name: app-1
+            port: 5000
+
+  httpRedirect:
+    name: wildcard-http-redirect
+    hostnames:
+      dev:
+        - "dev.infratestapp.pp.ua"
+      stage:
+        - "stage.infratestapp.pp.ua"
+      prod:
+        - "wildcard.infratestapp.pp.ua"
+    redirect:
+      scheme: https
+      statusCode: 301
