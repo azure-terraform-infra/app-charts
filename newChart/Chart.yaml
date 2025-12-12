@@ -1,0 +1,6 @@
+apiVersion: v2
+name: terraform-infra-chart
+description: "K8s deployes: deployment, service, ingress for terraform infra"
+type: application
+version: 0.1.0
+appVersion: "1.0"

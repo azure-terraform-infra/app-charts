@@ -1,0 +1,28 @@
+{{- if .Values.gatewayClass.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Release.Namespace }}-wildcard-gateway
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    alb.networking.azure.io/alb-name: {{ .Release.Namespace }}-alb
+    alb.networking.azure.io/alb-namespace: {{ .Release.Namespace }}
+spec:
+  gatewayClassName: {{ .Values.gatewayClass.gatewayClassName }}
+  listeners:
+{{- range .Values.gatewayClass.listeners }}
+    - name: {{ .name }}
+      protocol: {{ .protocol }}
+      port: {{ .port }}
+      allowedRoutes:
+        namespaces:
+          from: {{ .allowedNamespacesFrom | default "Same" }}
+{{- if .tls }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ .tls.certificateSecretName }}
+{{- end }}
+{{- end }}
+{{- end }}

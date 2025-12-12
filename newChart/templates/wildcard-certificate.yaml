@@ -1,0 +1,16 @@
+{{- if .Values.wildcardCertificate.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Release.Namespace }}-wildcard-tls
+  namespace: {{ .Release.Namespace }}
+spec:
+  secretName: {{ .Release.Namespace }}-{{ .Values.wildcardCertificate.secretName }}
+  issuerRef:
+    name: letsencrypt-{{ .Release.Namespace }}-dns
+    kind: ClusterIssuer
+  dnsNames:
+{{- range .Values.wildcardCertificate.dnsNames }}
+    - {{ . | quote }}
+{{- end }}
+{{- end }}

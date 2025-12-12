@@ -1,0 +1,15 @@
+# ApplicationLoadBalancer Custom Resource
+# This creates the Application Gateway for Containers in Azure
+# The ALB Controller will provision the Azure resources based on this definition
+{{- if .Values.applicationLoadBalancer.enabled }}
+apiVersion: alb.networking.azure.io/v1
+kind: ApplicationLoadBalancer
+metadata:
+  name: {{ .Release.Namespace }}-alb
+  namespace: {{ .Release.Namespace }}
+spec:
+  associations:
+  # This subnet ID will be populated by Terraform output
+  # Replace with actual subnet ID: /subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.Network/virtualNetworks/{vnet-name}/subnets/{subnet-name}
+  - {{ index .Values.applicationLoadBalancer .Release.Namespace "subnet-subscription-id" }}
+{{- end }}
