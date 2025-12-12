@@ -5,9 +5,9 @@ metadata:
   name: {{ .Release.Namespace }}-wildcard-tls
   namespace: {{ .Release.Namespace }}
 spec:
-  secretName: {{ .Release.Namespace }}-{{ .Values.wildcardCertificate.secretName }}
+  secretName: {{ .Release.Namespace }}-wildcard-tls-secret
   issuerRef:
-    name: letsencrypt-{{ .Release.Namespace }}-dns
+    name: letsencrypt-dns
     kind: ClusterIssuer
   dnsNames:
 {{- range .Values.wildcardCertificate.dnsNames }}

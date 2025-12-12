@@ -22,7 +22,7 @@ spec:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: {{ .tls.certificateSecretName }}
+            name: {{ $.Release.Namespace }}-wildcard-tls-secret
 {{- end }}
 {{- end }}
 {{- end }}

@@ -1,6 +1,6 @@
 {{- if .Values.gatewayNetworking.enabled }}
 
-{{- if .Values.gatewayNetworking.httpsRoute }}
+{{- if .Values.gatewayNetworking.httpsRoute.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -10,29 +10,29 @@ spec:
   parentRefs:
     - name: {{ .Release.Namespace }}-wildcard-gateway
       namespace: {{ .Release.Namespace }}
-      sectionName: {{ .Release.Namespace }}-https-listener
+      sectionName: https-listener
   hostnames:
 {{- range index .Values.gatewayNetworking.httpsRoute.hostnames .Release.Namespace }}
     - {{ . }}
 {{- end }}
   rules:
-{{- range .Values.gatewayNetworking.httpsRoute.rules }}
-    - matches:
+{{- $ns := .Release.Namespace }}
+{{- range $rule := index .Values.gatewayNetworking.httpsRoute.rules $ns }}
+  - matches:
       - path:
           type: PathPrefix
-          value: {{ .pathPrefix }}
-      backendRefs:
-{{- range .backends }}
-        - name: {{ $.Release.Name }}
-          namespace: {{ $.Release.Namespace }}
-          port: {{ .port }}
-{{- end }}
+          value: {{ $rule.pathPrefix }}
+    backendRefs:
+    {{- range $be := $rule.backends }}
+      - name: {{ $be.name }}-{{ $.Chart.Name }}
+        port: {{ $be.port }}
+    {{- end }}
 {{- end }}
 {{- end }}
 
 ---
 
-{{- if .Values.gatewayNetworking.httpRedirect }}
+{{- if .Values.gatewayNetworking.httpRedirect.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -42,17 +42,17 @@ spec:
   parentRefs:
     - name: {{ .Release.Namespace }}-wildcard-gateway
       namespace: {{ .Release.Namespace }}
-      sectionName: {{ .Release.Namespace }}-http-listener
+      sectionName: http-listener
   hostnames:
 {{- range index .Values.gatewayNetworking.httpRedirect.hostnames .Release.Namespace }}
     - {{ . }}
 {{- end }}
   rules:
     - filters:
-      - type: RequestRedirect
-        requestRedirect:
-          scheme: {{ .Values.gatewayNetworking.httpRedirect.redirect.scheme }}
-          statusCode: {{ .Values.gatewayNetworking.httpRedirect.redirect.statusCode }}
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: {{ .Values.gatewayNetworking.httpRedirect.redirect.scheme }}
+            statusCode: {{ .Values.gatewayNetworking.httpRedirect.redirect.statusCode }}
 {{- end }}
 
 {{- end }}
