@@ -36,7 +36,7 @@ jobs:
           
       - name: Lint Helm charts
         run: |
-          for chart in charts/*; do
+          for chart in newChart/*; do
             helm lint "$chart"
           done
 
@@ -87,11 +87,11 @@ jobs:
                 echo "" >> helm-diffs/summary.md
                 echo "\`\`\`diff" >> helm-diffs/summary.md
                 
-                helm diff upgrade $i ./charts/$i \
+                helm diff upgrade $i ./newChart/$i \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
                   --set image.repository=${{ env.REGISTRY }}/$i \
-                  -f charts/$i/values.yaml | tee -a helm-diffs/summary.md
+                  -f newChart/$i/values.yaml | tee -a helm-diffs/summary.md
                 
                 echo "\`\`\`" >> helm-diffs/summary.md
                 echo "✅ Diff check completed for $i"
@@ -192,11 +192,11 @@ jobs:
             for i in ${{ env.REPOS }}; do
               echo "🔃Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
 
-                if helm upgrade --install $i ./charts/$i \
+                if helm upgrade --install $i ./newChart/$i \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
                   --set image.repository=${{ env.REGISTRY }}/$i \
-                  -f charts/$i/values.yaml \
+                  -f newChart/$i/values.yaml \
                   --wait --timeout 10m; then
                   echo "✅ Deployed $i successfully"
                 else

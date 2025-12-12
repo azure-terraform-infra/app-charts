@@ -34,7 +34,7 @@ jobs:
           
       - name: Lint Helm charts
         run: |
-          for chart in charts/${{ env.APP_NAME }}; do
+          for chart in newChart/${{ env.APP_NAME }}; do
             helm lint "$chart"
           done
 
@@ -84,11 +84,11 @@ jobs:
               echo "" >> helm-diffs/summary.md
               echo "\`\`\`diff" >> helm-diffs/summary.md
               
-              helm diff upgrade ${{ env.APP_NAME }} ./charts/${{ env.APP_NAME }} \
+              helm diff upgrade ${{ env.APP_NAME }} ./newChart/${{ env.APP_NAME }} \
                 -n ${{ env.ENVIRONMENT }} \
                 --set image.tag=${{ env.VERSION }} \
                 --set image.repository=${{ env.REGISTRY }}/${{ env.APP_NAME }} \
-                -f charts/${{ env.APP_NAME }}/values.yaml | tee -a helm-diffs/summary.md
+                -f newChart/${{ env.APP_NAME }}/values.yaml | tee -a helm-diffs/summary.md
               
               echo "\`\`\`" >> helm-diffs/summary.md
               echo "✅ Diff check completed for ${{ env.APP_NAME }}"
