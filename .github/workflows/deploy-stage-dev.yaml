@@ -52,7 +52,7 @@ jobs:
       - name: Deploy the ${{ env.VERSION }} version
         run: |
             echo "Deploying ${{ env.APP_NAME }} version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
-            if helm upgrade --install ${{ env.APP_NAME }} ./newChart/${{ env.APP_NAME }} \
+            if helm upgrade --install ${{ env.APP_NAME }} ./newChart \
               -n ${{ env.ENVIRONMENT }} \
               --set image.tag=${{ env.VERSION }} \
               --set image.repository=${{ env.REGISTRY }}/${{ env.APP_NAME }} \
