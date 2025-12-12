@@ -12,8 +12,8 @@ env:
   AZURE_AKS_CLUSTER: ${{ github.event.client_payload.environment }}-aks-cluster
 
 jobs:
-  dev-chart:
-    name: Dev Chart
+  deploy-dev-chart:
+    name: Deploy Dev Chart
     runs-on: ubuntu-latest
     permissions:
       id-token: write
