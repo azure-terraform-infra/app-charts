@@ -186,7 +186,7 @@ jobs:
             for i in ${{ env.REPOS }}; do
               echo "🔃Deploying $i version ${{ env.VERSION }} to ${{ env.ENVIRONMENT }}"
 
-                if helm upgrade --install $i ./newChart/$i \
+                if helm upgrade --install $i ./newChart \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
                   --set image.repository=${{ env.REGISTRY }}/$i \
