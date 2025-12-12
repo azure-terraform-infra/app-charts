@@ -26,13 +26,16 @@ Each application has its own Helm chart with the following components:
 
 ```bash
 # Install app-1
-helm install app-1 ./charts/app-1 -n production --create-namespace
+helm install app-1 ./charts/app-1 -n dev
+```
 
-# Install app2
-helm install app2 ./charts/app2 -n production
-
-# Install app3
-helm install app3 ./charts/app3 -n production
+### Show what Helm is going to add
+```bash
+helm template app-1 . \
+    -n dev \
+    --set image.tag=dev-2025-12-12-08-23-21 \
+    --set image.repository=devcontainerregistry5th7aytwop.azurecr.io/app-1 \
+    -f ./app-1/values.yaml
 ```
 
 ### Deploy with custom values
@@ -40,9 +43,9 @@ helm install app3 ./charts/app3 -n production
 ```bash
 helm install app-1 ./charts/app-1 \
   --set image.tag=v1.0.0 \
+  --set image.repository=devcontainerregistry5th7aytwop.azurecr.io/app-1 \
   --set replicaCount=3 \
-  --set ingress.hosts[0].host=app-1.yourdomain.com \
-  -n production
+  -n dev
 ```
 
 ### Upgrade an application
@@ -50,14 +53,8 @@ helm install app-1 ./charts/app-1 \
 helm upgrade --install app-1 ./charts/app-1 \
   -n dev \
   --set image.tag=... \
-  --set image.repository=.../app-1 \
-  -f charts/app-1/values.yaml \
-  --wait --timeout 10m
-
-helm upgrade --install app-1 ./charts/app-1 \
-  -n prod \
-  --set image.tag=... \
-  --set image.repository=.../app-1 \
+  --set image.repository=devcontainerregistry5th7aytwop.azurecr.io/app-1 \
+  --set .environment= \
   -f charts/app-1/values.yaml \
   --wait --timeout 10m
 ```
