@@ -8,7 +8,7 @@ metadata:
   name: {{ .Release.Namespace }}-https-route
 spec:
   parentRefs:
-    - name: {{ .Release.Namespace }}-wildcard-gateway
+    - name: {{ .Release.Namespace }}-gateway
       namespace: {{ .Release.Namespace }}
       sectionName: https-listener
   hostnames:
@@ -40,7 +40,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   parentRefs:
-    - name: {{ .Release.Namespace }}-wildcard-gateway
+    - name: {{ .Release.Namespace }}-gateway
       namespace: {{ .Release.Namespace }}
       sectionName: http-listener
   hostnames:

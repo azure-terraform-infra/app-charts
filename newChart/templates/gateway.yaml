@@ -2,7 +2,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ .Release.Namespace }}-wildcard-gateway
+  name: {{ .Release.Namespace }}-gateway
   namespace: {{ .Release.Namespace }}
   annotations:
     alb.networking.azure.io/alb-name: {{ .Release.Namespace }}-alb
@@ -22,7 +22,7 @@ spec:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: {{ $.Release.Namespace }}-wildcard-tls-secret
+            name: {{ $.Release.Namespace }}-tls-secret
 {{- end }}
 {{- end }}
 {{- end }}

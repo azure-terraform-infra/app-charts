@@ -53,16 +53,16 @@ affinity: {}
 
 applicationLoadBalancer:
   enabled: true
-  dev:
-    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/dev-net/subnets/public"
-  prod:
-    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/prod-net/subnets/public"
   stage:
-    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra/providers/Microsoft.Network/virtualNetworks/stage-net/subnets/public"
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra-stage/providers/Microsoft.Network/virtualNetworks/stage-net/subnets/public"
+  dev:
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra-dev/providers/Microsoft.Network/virtualNetworks/dev-net/subnets/public"
+  prod:
+    subnet-subscription-id: "/subscriptions/8b4a5f42-670c-4465-bb88-aebe7b4fdc01/resourceGroups/terraform-infra-prod/providers/Microsoft.Network/virtualNetworks/prod-net/subnets/public"
 
-wildcardCertificate:
+Certificate:
   enabled: true
-  name: wildcard-tls
+  name: tls
   dnsNames:
     - "*.infratestapp.pp.ua"
 
@@ -85,16 +85,26 @@ gatewayNetworking:
   enabled: true
   httpsRoute:
     enabled: true
-    name: wildcard-https-route
+    name: https-route
     hostnames:
-      dev:
-        - "dev.infratestapp.pp.ua"
       stage:
         - "stage.infratestapp.pp.ua"
-      prod:
-        - "wildcard.infratestapp.pp.ua"
-    rules:
       dev:
+        - "dev.infratestapp.pp.ua"
+      prod:
+        - "prod.infratestapp.pp.ua"
+    rules:
+      stage:
+        - pathPrefix: "/"
+          backends:
+            - name: app-1
+              port: 5000
+      dev:
+        - pathPrefix: "/"
+          backends:
+            - name: app-1
+              port: 5000
+      prod:
         - pathPrefix: "/"
           backends:
             - name: app-1
@@ -102,14 +112,14 @@ gatewayNetworking:
 
   httpRedirect:
     enabled: true
-    name: wildcard-http-redirect
+    name: https-http-redirect
     hostnames:
-      dev:
-        - "dev.infratestapp.pp.ua"
       stage:
         - "stage.infratestapp.pp.ua"
+      dev:
+        - "dev.infratestapp.pp.ua"
       prod:
-        - "wildcard.infratestapp.pp.ua"
+        - "prod.infratestapp.pp.ua"
     redirect:
       scheme: https
       statusCode: 301
