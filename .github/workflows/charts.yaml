@@ -81,7 +81,7 @@ jobs:
                 echo "" >> helm-diffs/summary.md
                 echo "\`\`\`diff" >> helm-diffs/summary.md
                 
-                helm diff upgrade $i ./newChart/$i \
+                helm diff upgrade $i ./newChart \
                   -n ${{ env.ENVIRONMENT }} \
                   --set image.tag=${{ env.VERSION }} \
                   --set image.repository=${{ env.REGISTRY }}/$i \
